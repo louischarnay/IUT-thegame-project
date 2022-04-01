@@ -46,7 +46,6 @@ int main(int argc, char* argv[])
     output.setWriter(1);
     threads[1]= std::thread(talk, std::ref(output));
 
-    //
     threads[0].join();
     threads[1].join();
 

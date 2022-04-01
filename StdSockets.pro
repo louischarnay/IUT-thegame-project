@@ -5,4 +5,6 @@ SUBDIRS = ServerAsync ClientAsync #HediServer
 
 HEADERS += \
     socket.h\
-    talk.h
+    talk.h\
+    Game.h\
+    Stack.h

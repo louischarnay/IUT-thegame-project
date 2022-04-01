@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = ServerAsync1.0.0
-DISTDIR = /mnt/c/Users/Pablo/Documents/IUT/IUT\ S4/client_serveur/TP2/StdSockets/ServerAsync/.tmp/ServerAsync1.0.0
+DISTDIR = /mnt/c/Users/Pablo/Documents/IUT/IUT\ S4/client_serveur/thegame/ServerAsync/.tmp/ServerAsync1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) -pthread -lpthread   
@@ -54,10 +54,16 @@ OBJECTS_DIR   = ./
 
 SOURCES       = serverAsync.cpp \
 		../socket.cpp \
-		../talk.cpp 
+		../talk.cpp \
+		../Game.cpp \
+		../Player.cpp \
+		../Stack.cpp 
 OBJECTS       = serverAsync.o \
 		socket.o \
-		talk.o
+		talk.o \
+		Game.o \
+		Player.o \
+		Stack.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -130,7 +136,10 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		ServerAsync.pro  serverAsync.cpp \
 		../socket.cpp \
-		../talk.cpp
+		../talk.cpp \
+		../Game.cpp \
+		../Player.cpp \
+		../Stack.cpp
 QMAKE_TARGET  = ServerAsync
 DESTDIR       = 
 TARGET        = ServerAsync
@@ -328,7 +337,10 @@ compiler_clean:
 ####### Compile
 
 serverAsync.o: serverAsync.cpp ../socket.h \
-		../talk.h
+		../talk.h \
+		../Game.h \
+		../Stack.h \
+		../Player.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o serverAsync.o serverAsync.cpp
 
 socket.o: ../socket.cpp ../socket.h
@@ -336,6 +348,17 @@ socket.o: ../socket.cpp ../socket.h
 
 talk.o: ../talk.cpp ../talk.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o talk.o ../talk.cpp
+
+Game.o: ../Game.cpp ../Game.h \
+		../Stack.h \
+		../Player.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Game.o ../Game.cpp
+
+Player.o: ../Player.cpp ../Player.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Player.o ../Player.cpp
+
+Stack.o: ../Stack.cpp ../Stack.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Stack.o ../Stack.cpp
 
 ####### Install
 
