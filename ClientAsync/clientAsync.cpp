@@ -1,6 +1,5 @@
 #include <iostream>
 #include <thread>
-
 #include <sys/time.h>
 #include "socket.h"
 #include "talk.h"
@@ -26,7 +25,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    //
     cout << "Attemping to reach " << argv[1] << ":" << port << endl;
     StreamSocket *sock=new StreamSocket(std::string(argv[1]),port);
 
@@ -46,7 +44,6 @@ int main(int argc, char* argv[])
     output.setWriter(1);
     threads[1]= std::thread(talk, std::ref(output));
 
-    //
     threads[0].join();
     threads[1].join();
 
