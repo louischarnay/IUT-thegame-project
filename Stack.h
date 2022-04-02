@@ -1,5 +1,9 @@
+#include <string>
+
 #ifndef STACK_H
 #define STACK_H
+
+using namespace std;
 
 class Stack
 {
@@ -13,6 +17,7 @@ public:
     bool getIsCrescent() { return isCrescent; }
     int getTopCard() { return topCard; }
     void setTopCard(int card) { topCard = card; }
+    string toString();
 };
 
 #endif

@@ -1,4 +1,7 @@
 #include "Stack.h"
+#include <string>
+
+using namespace std;
 
 Stack::Stack(int id, bool isCrescent)
 {
@@ -11,4 +14,11 @@ Stack::Stack(int id, bool isCrescent)
     {
         this->topCard = 100;
     }
+}
+
+string Stack::toString()
+{
+    string result = "id : " + to_string(id) + " | is crescent : " + to_string(isCrescent) + " | top card : " +
+    to_string(topCard) + "\t";
+    return result;
 }

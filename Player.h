@@ -1,5 +1,6 @@
 #include <vector>
-#include "string"
+#include <string>
+#include "Stack.h"
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -11,18 +12,33 @@ class Player
 private:
     int id;
     vector<int> deck;
+    Stack *stacksList[4];
     bool isTurn;
+    bool canPlay;
     int cardToPlace;
     int stackToPLace;
 public:
     Player(int);
     ~Player();
-    void dealCard(int card);
+
     string getCards();
     int getCardToPlace(){return cardToPlace;}
     int getStackToPlace(){return stackToPLace;}
     bool getIsTurn(){return isTurn;}
-    void resetChoice(bool isvalid){cardToPlace = -1; stackToPLace = -1;}
+    int getId(){return id;}
+    bool getCanPlay(){return canPlay;}
+    int getIndex(vector<int>, int);
+    int getDeckSize(){return deck.size();}
+
+    void setCanPlay(bool);
+
+    void dealCard(int card);
+    void startTurn(Stack*[4]);
+    void resetChoice(bool isValid);
+    bool isMoveValid(int, int);
+
+    void setCardAndStackTEST();
+    bool isEndOfTurnTEST();
 };
 
 

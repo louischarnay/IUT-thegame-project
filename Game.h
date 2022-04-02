@@ -17,7 +17,7 @@ private:
     vector<int> deck;
     vector<Player*> players;
 
-    int gameState; //0 = in game / 1 = game ended / -1 = game stopped
+    int gameState; //0 = in game / 1 = every players can't play / -1 = game stopped
     int minCardsToPlace;
 public:
     Game(vector<Player*>&);
@@ -33,6 +33,8 @@ public:
     int dealRandomCard();
     void turnPlayer(int);
     void init(vector<Player*>&);
+    void endOfGame(int);
+    string toString();
 };
 
 
