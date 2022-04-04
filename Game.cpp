@@ -171,9 +171,8 @@ void Game::endOfGame(int idPlayer)
     for (int i = 0; i < players.size(); ++i) {
         nbCardsRemaining += players.at(i)->getDeckSize();
     }
-    //ENDGA idPlayer nbCardsRemaining
+    ///ENDGA idPlayer nbCardsRemaining
     cout << "End of game ! " << endl << "Points : " << to_string(nbCardsRemaining) << endl;
-    player.
 }
 
 Game::~Game(){

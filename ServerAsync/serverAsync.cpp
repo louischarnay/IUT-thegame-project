@@ -2,63 +2,69 @@
 #include <thread>
 #include <vector>
 #include <sys/time.h>
+#include <vector>
 #include "socket.h"
-#include "talk.h"
-#include "Game.h"
+#include "../talk.h"
+#include "../Game.h"
+#include "../Player.h"
 
 using namespace std;
 using namespace stdsock;
 
-int NB_CLIENTS = 3;
+void startGame(vector<Player*>);
 
-int main(int argc, char *argv[])
+int NB_PLAYERS = 2;
+
+int main()
 {
-    // Talk com[NB_CLIENTS];
-    // std::thread threads[NB_CLIENTS];
-    // int port;
-    // if(argc!=2 || sscanf(argv[1], "%d", &port)!=1)
-    // {
-    //     printf("usage: %s port\n", argv[0]);
-    //     // default port, if none provided
-    //     port= 3490;
-    // }
-    // ConnectionPoint *server=new ConnectionPoint(port);
-    // int err= server->init();
-    // if (err != 0) {
-    //     std::cout << strerror(err) << std::endl;
-    //     exit(err);
-    // }
-    // cout << "Waiting clients on port " << port << " ..." << endl;
-    // StreamSocket *clients[NB_CLIENTS];
-    // for (int i = 0; i < NB_CLIENTS; ++i) {
-    //     clients[i] = server->accept();
-    //     com[i].setReader(clients[i]->getSockfd());
-    //     com[i].setWriter(-1);
-    //     cout << "connexion client " << i << "\n";
-    // }
-    // // creating threads for communications handling
-    // int cpt = 0;
-    // for (int i = 0; i < NB_CLIENTS; ++i) {
-    //         threads[i] = std::thread(talk, std::ref(com[i]));
-    // }
+    vector<vector<Player*>> lobbiesList;
+    ConnectionPoint *server = new ConnectionPoint(3490);
+    int nbPlayers = 0;
 
-    // // waiting end of communication
-    // cpt = 0;
-    // for (int i = 0; i < NB_CLIENTS; i++) {
-    //     threads[i].join();
-    //     printf("Deconnexion client %c \n", (i));
-    //     delete(clients[i]);
-    // }
+    int err= server->init();
+    std::cout << server->getIP() << ":" << server->getPort() << std::endl;
+    if (err != 0) {
+#ifdef _WIN32
+        char buf[100];
+        std::cout << strerror_s(buf,sizeof(buf),err) << std::endl;
+#else
+        std::cout << strerror(err) << std::endl;
+#endif
+        exit(err);
+    }
 
+    while (true)
+    {
+        StreamSocket* client = server->accept();
 
-    // // closing connexion point
-    // delete server;
-    // cout << "stop\n";
-    vector<Player*> players;
-    players.push_back(new Player(1));
-    players.push_back(new Player(2));
-    players.push_back(new Player(3));
-    
-    new Game(players);
+        if (!client->valid())
+        {
+            delete client;
+            continue;
+        }
+        else
+        {
+            //add new player in lobbiesList
+            if(nbPlayers == 0 || nbPlayers % NB_PLAYERS == 0)
+            {
+                vector<Player*> vector;
+                lobbiesList.push_back(vector);
+            }
+            lobbiesList.at(lobbiesList.size() - 1).push_back(new Player(nbPlayers));
+            nbPlayers ++;
+
+            //create new Game
+            if(nbPlayers % NB_PLAYERS == 0)
+            {
+                thread(startGame, lobbiesList.at(lobbiesList.size() - 1)).detach();
+            }
+        }
+    }
+    delete server;
     return 0;
+}
+
+void startGame(vector<Player*> playersList)
+{
+    new Game(playersList);
 }
