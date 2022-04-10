@@ -8,11 +8,12 @@
 using namespace std;
 
 
-Player::Player(int Id)
+Player::Player(int Id, StreamSocket* Socket)
 {
     srand(time(0));
     id = Id;
     isTurn = false;
+    socket = Socket;
     //init stacks
     for (int i = 0; i < 4; i++)
     {
@@ -120,7 +121,7 @@ bool Player::isEndOfTurnTEST()
 void Player::setCanPlay(bool canPlay)
 {
     this->canPlay = canPlay;
-    cout << "can play : " << to_string(this->canPlay) << endl;
+    //cout << "can play : " << to_string(this->canPlay) << endl;
 }
 
 int Player::getIndex(vector<int> v, int value)
@@ -132,4 +133,14 @@ int Player::getIndex(vector<int> v, int value)
         return it - v.begin();
     }
     return -1;
+}
+
+string Player::readMessage()
+{
+    string result = " ";
+    while(result == " ")
+    {
+        socket->read(result);
+    }
+    return result;
 }

@@ -1,54 +1,67 @@
 #include <iostream>
 #include <thread>
-#include <sys/time.h>
-#include "socket.h"
-#include "talk.h"
+#include <string>
+
+#include "../socket.h"
+#include "../Player.h"
 
 using namespace std;
 using namespace stdsock;
 
 int main(int argc, char* argv[])
 {
-    Talk input, output;
-    std::thread threads[2];
     int port;
+    Player *player;
+    string message;
 
-    if(argc!=3)
+    if (argc != 3)
     {
         printf("usage: %s server_address port\n", argv[0]);
         return 0;
     }
 
-    if(sscanf(argv[2], "%d", &port)!=1)
+#ifdef _WIN32
+    if (sscanf_s(argv[2], "%d", &port) != 1)
+#else
+    if (sscanf(argv[2], "%d", &port) != 1)
+#endif
     {
         printf("usage: %s server_address port\n", argv[0]);
         return 1;
     }
+    StreamSocket* socket = new StreamSocket(argv[1], port);
 
-    cout << "Attemping to reach " << argv[1] << ":" << port << endl;
-    StreamSocket *sock=new StreamSocket(std::string(argv[1]),port);
-
-    int err= sock->connect();
-    if (err!=0) {
-        delete sock;
+    //connexion
+    int err = socket->connect();
+    if (err != 0) {
+        delete socket;
         perror("[-]Error in connection: ");
         return(err);
     }
     cout << "[+]Connected to Server.\n";
 
-    input.setReader(0);
-    input.setWriter(sock->getSockfd());
-    threads[0]= std::thread(talk, std::ref(input));
+    //starting game
+    socket->read(message);
+    int id = message.at(5) - '0';
+    cout << message << endl << to_string(id) << endl;
+    if(message != "START" + to_string(id))
+    {
+        cout << "Connection failed" << endl;
+        delete socket;
+        return 0;
+    }
+    player = new Player(id, socket);
+    player->sendMessage("CONNE1");
+    cout << "Game started ! \n" << "id : " << to_string(id) << endl;
 
-    output.setReader(sock->getSockfd());
-    output.setWriter(1);
-    threads[1]= std::thread(talk, std::ref(output));
+    while(true)
+    {
+        socket->read(message);
+        cout << "Server :\t" << message << endl;
+        cin >> message;
+        socket->send(message);
+    }
 
-    threads[0].join();
-    threads[1].join();
-
-    delete sock;
-    cout << "stop\n";
-
+    //    delete sock;
     return 0;
 }

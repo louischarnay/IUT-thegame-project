@@ -1,15 +1,18 @@
 #include <vector>
 #include <string>
 #include "Stack.h"
+#include "socket.h"
 
 #ifndef PLAYER_H
 #define PLAYER_H
 
 using namespace std;
+using namespace  stdsock;
 
 class Player
 {
 private:
+    StreamSocket* socket;
     int id;
     vector<int> deck;
     Stack *stacksList[4];
@@ -18,7 +21,7 @@ private:
     int cardToPlace;
     int stackToPLace;
 public:
-    Player(int);
+    Player(int, StreamSocket*);
     ~Player();
 
     string getCards();
@@ -36,6 +39,8 @@ public:
     void startTurn(Stack*[4]);
     void resetChoice(bool isValid);
     bool isMoveValid(int, int);
+    void sendMessage(string message){socket->send(message);}
+    string readMessage();
 
     void setCardAndStackTEST();
     bool isEndOfTurnTEST();

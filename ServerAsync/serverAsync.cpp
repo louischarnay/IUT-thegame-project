@@ -50,7 +50,7 @@ int main()
                 vector<Player*> vector;
                 lobbiesList.push_back(vector);
             }
-            lobbiesList.at(lobbiesList.size() - 1).push_back(new Player(nbPlayers));
+            lobbiesList.at(lobbiesList.size() - 1).push_back(new Player(nbPlayers, client));
             nbPlayers ++;
 
             //create new Game

@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 #include "Stack.h"
 #include "Player.h"
 
@@ -34,6 +35,10 @@ public:
     void turnPlayer(int);
     void init(vector<Player*>&);
     void endOfGame(int);
+    string sendMessageToEveryone(string);
+    string sendMessageToOne(int, string);
+    string getMessagePrefix(string);
+    int getMessageSuffix(string);
     string toString();
 };
 

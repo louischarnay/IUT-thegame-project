@@ -11,5 +11,8 @@ INCLUDEPATH += ../
 SOURCES += \
         clientAsync.cpp \
         ../socket.cpp \
-        ../talk.cpp
+        ../talk.cpp \
+        ../Game.cpp \
+        ../Player.cpp \
+        ../Stack.cpp
 
