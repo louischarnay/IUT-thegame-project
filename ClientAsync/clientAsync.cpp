@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     player.dealCard(2);
     player.dealCard(3);
 
-    string stack = "[" + to_string(player.getStacks(0)->getTopCard()) + "]+ [" + to_string(player.getStacks(1)->getTopCard()) + "]- [" + to_string(player.getStacks(2)->getTopCard()) + "]+ [" + to_string(player.getStacks(3)->getTopCard()) + "]-";
+    string stack = "[" + to_string(player.getStacks(0)->getTopCard()) + "]- [" + to_string(player.getStacks(1)->getTopCard()) + "]+ [" + to_string(player.getStacks(2)->getTopCard()) + "]- [" + to_string(player.getStacks(3)->getTopCard()) + "]+";
     char stacks[300] = "";
     strcpy(stacks, stack.c_str());
 
@@ -46,11 +46,15 @@ int main(int argc, char* argv[])
     char mesg22[] = "Merci de jouer une carte valide !";
     char mesg3[] = "Carte jouée !";
     char mesg4[] = "Impossible de jouer cette carte sur cette stack !";
+    char mesg5[] = "Veuillez patienter, ce n'est pas votre tour.";
+    char mesg6[] = "Vous pouvez envoyer un message aux autres participants.";
     char str1[2];
     char str2[2];
+    char str3[250];
     strcat(cards, player.getCards().c_str());
 
     bool game = true;
+    bool turn = true;
     bool card = true;
 
     while(game){
@@ -61,7 +65,16 @@ int main(int argc, char* argv[])
         cpt++;
         mvprintw(LINES / 4 + cpt, (strlen(cards) / 2) - (strlen(cards) / 2), cards);
         cpt++;
-        while (true){ //player.getCanPlay()
+        while (!turn){
+            mvprintw(LINES / 4 + cpt, (strlen(mesg5) / 2) - (strlen(mesg5) / 2), mesg5);
+            cpt++;
+            mvprintw(LINES / 4 + cpt, (strlen(mesg6) / 2) - (strlen(mesg6) / 2), mesg6);
+            getstr(str3);
+            cpt++;
+            //Le joueur envoie un message contenu dans str3
+        }
+
+        while (turn){ //player.getCanPlay()
             card = true;
             mvprintw(LINES / 4 + cpt, (strlen(mesg1) / 2) - (strlen(mesg1) / 2), mesg1);
             getstr(str1);
@@ -73,8 +86,8 @@ int main(int argc, char* argv[])
                     cpt++;
                     for (int i = 0; i < player.getDeckSize(); i++){
                         if (strcmp(str2, player.getCards(i).c_str()) == 0){
-                            if (player.isMoveValid(atoi(str2), atoi(str1))){
-                                //le joueur joue la carte str2 sur la stack str1
+                            if (player.isMoveValid(atoi(str2), atoi(str1) - 1)){
+                                //le joueur joue la carte str2 sur la stack str1 - 1
                                 card = false;
                             }
                             else {
@@ -82,16 +95,21 @@ int main(int argc, char* argv[])
                                 cpt++;
                             }
                         }
+                        else if (strcmp(str2, "/") == 0){
+                            card = false;
+                        }
                     }
                 }    
+            }
+            else if (strcmp(str1, "/") == 0){
+                //Le joueur passe son tour
+                turn = false;
             }
             else {
                 mvprintw(LINES / 4 + cpt, (strlen(mesg12) / 2) - (strlen(mesg12) / 2), mesg12);
                 cpt++;
             }
-            break;
         }
-        refresh();
     }
     
     endwin();
