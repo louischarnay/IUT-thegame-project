@@ -19,10 +19,12 @@ private:
     int stackToPLace;
 public:
     Player(int);
-    ~Player();
+    //~Player();
 
     string getCards();
+    string getCards(int index);
     int getCardToPlace(){return cardToPlace;}
+    Stack* getStacks(int index){return stacksList[index];}
     int getStackToPlace(){return stackToPLace;}
     bool getIsTurn(){return isTurn;}
     int getId(){return id;}

@@ -173,7 +173,6 @@ void Game::endOfGame(int idPlayer)
     }
     //ENDGA idPlayer nbCardsRemaining
     cout << "End of game ! " << endl << "Points : " << to_string(nbCardsRemaining) << endl;
-    player.
 }
 
 Game::~Game(){

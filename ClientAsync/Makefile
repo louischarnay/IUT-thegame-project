@@ -40,7 +40,7 @@ DISTNAME      = ClientAsync1.0.0
 DISTDIR = /mnt/d/developpement/devIUT/projets/thegame/ClientAsync/.tmp/ClientAsync1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -pthread -lpthread   
+LIBS          = $(SUBLIBS) -pthread -lpthread -lncurses
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -54,10 +54,14 @@ OBJECTS_DIR   = ./
 
 SOURCES       = clientAsync.cpp \
 		../socket.cpp \
-		../talk.cpp 
+		../talk.cpp \
+		../Player.cpp \
+		../Stack.cpp 
 OBJECTS       = clientAsync.o \
 		socket.o \
-		talk.o
+		talk.o \
+		Player.o \
+		Stack.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -87,7 +91,9 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		ClientAsync.pro  clientAsync.cpp \
 		../socket.cpp \
-		../talk.cpp
+		../talk.cpp \
+		../Player.cpp \
+		../Stack.cpp
 QMAKE_TARGET  = ClientAsync
 DESTDIR       = 
 TARGET        = ClientAsync
@@ -199,7 +205,9 @@ compiler_clean:
 ####### Compile
 
 clientAsync.o: clientAsync.cpp ../socket.h \
-		../talk.h
+		../talk.h \
+		../Player.h \
+		../Stack.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o clientAsync.o clientAsync.cpp
 
 socket.o: ../socket.cpp ../socket.h
@@ -207,6 +215,13 @@ socket.o: ../socket.cpp ../socket.h
 
 talk.o: ../talk.cpp ../talk.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o talk.o ../talk.cpp
+
+Player.o: ../Player.cpp ../Player.h \
+		../Stack.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Player.o ../Player.cpp
+
+Stack.o: ../Stack.cpp ../Stack.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Stack.o ../Stack.cpp
 
 ####### Install
 

@@ -12,6 +12,4 @@ SOURCES += \
         serverAsync.cpp \
         ../socket.cpp \
         ../talk.cpp \
-        ../Game.cpp \
-        ../Player.cpp \
-        ../Stack.cpp
+        ../Game.cpp
