@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string>
 #include "Game.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -203,7 +204,13 @@ string Game::sendMessageToEveryone(string message)
 string Game::sendMessageToOne(int id, string message)
 {
     players.at(id)->sendMessage(message);
-    return players.at(id)->readMessage();
+    string response = "";
+    while(response == "")
+    {
+        response = players.at(id)->readMessage();
+        cout << response << endl;
+    }
+    return response;
 }
 
 string Game::getMessagePrefix(string message)

@@ -56,6 +56,7 @@ int main()
             //create new Game
             if(nbPlayers % NB_PLAYERS == 0)
             {
+                cout << "New game" << endl;
                 thread(startGame, lobbiesList.at(lobbiesList.size() - 1)).detach();
             }
         }

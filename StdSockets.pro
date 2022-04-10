@@ -7,4 +7,5 @@ HEADERS += \
     socket.h\
     talk.h\
     Game.h\
+    Player.h\
     Stack.h

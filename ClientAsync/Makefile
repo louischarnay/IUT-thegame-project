@@ -40,7 +40,7 @@ DISTNAME      = ClientAsync1.0.0
 DISTDIR = /mnt/c/Users/Pablo/Documents/IUT/IUT\ S4/client_serveur/thegame/ClientAsync/.tmp/ClientAsync1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -pthread -lpthread   
+LIBS          = $(SUBLIBS) $(SUBLIBS) -pthread -lncurses -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -52,16 +52,14 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = clientAsync.cpp \
+SOURCES       = test.cpp \
 		../socket.cpp \
 		../talk.cpp \
-		../Game.cpp \
 		../Player.cpp \
 		../Stack.cpp 
-OBJECTS       = clientAsync.o \
+OBJECTS       = test.o \
 		socket.o \
 		talk.o \
-		Game.o \
 		Player.o \
 		Stack.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -134,10 +132,9 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		ClientAsync.pro  clientAsync.cpp \
+		ClientAsync.pro  test.cpp \
 		../socket.cpp \
 		../talk.cpp \
-		../Game.cpp \
 		../Player.cpp \
 		../Stack.cpp
 QMAKE_TARGET  = ClientAsync
@@ -336,22 +333,18 @@ compiler_clean:
 
 ####### Compile
 
-clientAsync.o: clientAsync.cpp ../socket.h \
+test.o: test.cpp ../socket.h \
+		../talk.h \
 		../Player.h \
-		../Stack.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o clientAsync.o clientAsync.cpp
+		../Stack.h \
+		../Game.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o test.o test.cpp
 
 socket.o: ../socket.cpp ../socket.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o socket.o ../socket.cpp
 
 talk.o: ../talk.cpp ../talk.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o talk.o ../talk.cpp
-
-Game.o: ../Game.cpp ../Game.h \
-		../Stack.h \
-		../Player.h \
-		../socket.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Game.o ../Game.cpp
 
 Player.o: ../Player.cpp ../Player.h \
 		../Stack.h \

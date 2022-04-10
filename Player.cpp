@@ -148,3 +148,11 @@ string Player::readMessage()
     }
     return result;
 }
+
+Player::~Player()
+{
+    for (int i = 0; i <= 3; i++)
+    {
+        delete stacksList[i];
+    }
+}

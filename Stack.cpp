@@ -1,5 +1,4 @@
 #include "Stack.h"
-#include <string>
 
 using namespace std;
 

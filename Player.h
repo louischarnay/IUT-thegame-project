@@ -34,8 +34,10 @@ public:
     bool getCanPlay(){return canPlay;}
     int getIndex(vector<int>, int);
     int getDeckSize(){return deck.size();}
+    vector<int> getDeck(){return deck;}
 
     void setCanPlay(bool);
+    void setId(int Id){id = Id;}
 
     void dealCard(int card);
     void startTurn(Stack*[4]);

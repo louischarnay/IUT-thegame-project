@@ -1,21 +1,26 @@
 #include <iostream>
 #include <thread>
 #include <sys/time.h>
-#include "socket.h"
-#include "talk.h"
-#include <ncurses.h>
-#include "Player.h"
-#include "Stack.h"
 #include <string>
+#include <ncurses.h>
+#include "../socket.h"
+#include "../talk.h"
+#include "../Player.h"
+#include "../Game.h"
+#include "../Stack.h"
 
 using namespace std;
 using namespace stdsock;
 
+string getMessagePrefix(string);
+int getMessageSuffix(string, int);
+void fillDeck(Player);
+
+int DECK_SIZE = 6;
+
 int main(int argc, char* argv[])
 {
     WINDOW *boite;
-
-    Player player(0);
 
     char *title = "[ THE GAME ]";
     char str4[2];
@@ -27,6 +32,37 @@ int main(int argc, char* argv[])
     char lobby_mesg3[] = "Indiquez la lettre correspondante à l'action c/j: ";
     char lobby_mesg4[] = "Indiquez le nombre max de participants: ";
     char lobby_mesg5[] = "Indiquez l\'identifiant du salon que vous souhaitez rejoindre: ";
+
+
+    int port;
+
+    if (argc != 3)
+    {
+        printf("usage: %s server_address port\n", argv[0]);
+        return 0;
+    }
+
+#ifdef _WIN32
+    if (sscanf_s(argv[2], "%d", &port) != 1)
+#else
+    if (sscanf(argv[2], "%d", &port) != 1)
+#endif
+    {
+        printf("usage: %s server_address port\n", argv[0]);
+        return 1;
+    }
+
+    StreamSocket* socket = new StreamSocket(argv[1], port);
+
+    int err = socket->connect();
+    if (err != 0) {
+        delete socket;
+        perror("[-]Error in connection: ");
+        return(err);
+    }
+    cout << "[+]Connected to Server.\n";
+
+    Player player(0, socket);
 
     bool lobby = true;
 
@@ -71,11 +107,13 @@ int main(int argc, char* argv[])
         if(getch() != 410)
             break;
     }
+    string message;
+    socket->read(message);
+    if(getMessagePrefix(message) == "START")
+        player.setId(getMessageSuffix(message, 5));
 
     //Le joueur reçoit les cartes
-    player.dealCard(1);
-    player.dealCard(2);
-    player.dealCard(3);
+    fillDeck(player);
 
     string stack = "[" + to_string(player.getStacks(0)->getTopCard()) + "]- [" + to_string(player.getStacks(1)->getTopCard()) + "]+ [" + to_string(player.getStacks(2)->getTopCard()) + "]- [" + to_string(player.getStacks(3)->getTopCard()) + "]+";
     char stacks[300] = "";
@@ -130,6 +168,9 @@ int main(int argc, char* argv[])
                     for (int i = 0; i < player.getDeckSize(); i++){
                         if (strcmp(str2, player.getCards(i).c_str()) == 0){
                             if (player.isMoveValid(atoi(str2), atoi(str1) - 1)){
+                                message = "PLAYT";
+                                message += str2 + to_string(atoi(str1) - 1);
+                                socket->send(message);
                                 //le joueur joue la carte str2 sur la stack str1 - 1
                                 card = false;
                             }
@@ -160,4 +201,26 @@ int main(int argc, char* argv[])
     free(boite);
 
     return 0;
+}
+
+string getMessagePrefix(string message)
+{
+    return message.substr(0, 5);
+}
+
+int getMessageSuffix(string message, int index)
+{
+    return message.at(index) + '0';
+}
+
+void fillDeck(Player player)
+{
+    string message;
+    while(player.getDeckSize() < DECK_SIZE)
+    {
+        message = player.readMessage();
+        string tmp = message.substr(5, message.length() - 5);
+        int card = stoi(tmp);
+        player.dealCard(card);
+    }
 }
