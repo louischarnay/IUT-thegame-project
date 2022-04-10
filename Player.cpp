@@ -41,6 +41,10 @@ string Player::getCards()
     return result;
 }
 
+string Player::getCards(int index){
+    return to_string(deck.at(index));
+}
+
 void Player::startTurn(Stack *stackList[4])
 {
     isTurn = true;

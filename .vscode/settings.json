@@ -6,7 +6,17 @@
     "string": "cpp",
     "unordered_map": "cpp",
     "vector": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "xlocale": "cpp",
+    "xlocinfo": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp",
+    "atomic": "cpp",
+    "forward_list": "cpp",
+    "ios": "cpp",
+    "system_error": "cpp",
+    "xiosbase": "cpp",
+    "xtree": "cpp"
   },
   "C_Cpp_Runner.cStandard": "",
   "C_Cpp_Runner.cppStandard": "",
