@@ -43,7 +43,7 @@ public:
     void startTurn(Stack*[4]);
     void resetChoice(bool isValid);
     bool isMoveValid(int, int);
-    void sendMessage(string message){socket->send(message);}
+    void sendMessage(string message){socket->send(message); cout << message << endl;}
     string readMessage();
 
     void setCardAndStackTEST();

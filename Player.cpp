@@ -104,6 +104,8 @@ void Player::setCardAndStackTEST()
 
 bool Player::isMoveValid(int card, int stack)
 {
+    if(card == -1 || stack == -1)
+        return false;
     if(
             (stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() < card) ||
             (!stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() > card) ||
@@ -146,6 +148,8 @@ string Player::readMessage()
     {
         socket->read(result);
     }
+    cout << "Player " << to_string(getId()) << " : " << result << endl;
+    result = result.substr(1, result.length() -  1);
     return result;
 }
 

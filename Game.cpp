@@ -14,13 +14,11 @@ Game::Game(vector<Player*>& players)
 
 void Game::init(vector<Player*>& Players){
     //init players
-    for (int i = 0; i < Players.size(); i++)
-    {
+    for (int i = 0; i < Players.size(); i++) {
         players.push_back(Players.at(i));
         //connexion
         players.at(i)->sendMessage("START" + to_string(players.at(i)->getId()));
         string response = players.at(i)->readMessage();
-        cout <<"Player " << to_string(players.at(i)->getId()) << "\t" << response << endl;
     }
     //init stacks
     for (int i = 0; i < 4; i++)
@@ -58,6 +56,8 @@ void Game::turnPlayer(int playerIndex)
 {
     Player* player = players.at(playerIndex);
     sendMessageToEveryone("TURNP" + to_string(playerIndex));
+    cout << "test wesh";
+    //cout << "Turn Player " << to_string(playerIndex) << endl;
 
     //bool isMoveValid = false;
     bool isPlaying = true;
@@ -65,13 +65,15 @@ void Game::turnPlayer(int playerIndex)
     int stackIndex;
     int nbCardsPlayed = 0;
 
+    cout << "zebi";
     player->startTurn(stacksList);
     while(isPlaying)
     {
         //get player's move
 
-        player->setCardAndStackTEST(); //TEST
-        player->isEndOfTurnTEST(); //TEST
+        //player->setCardAndStackTEST(); //TEST
+        //player->isEndOfTurnTEST(); //TEST
+
         if(!player->getCanPlay())
         {
             //end of turn
@@ -86,11 +88,13 @@ void Game::turnPlayer(int playerIndex)
                 return;
             }
         }
+        //if player skip
         if(!player->getIsTurn())
         {
             if(nbCardsPlayed >= minCardsToPlace)
             {
                 sendMessageToOne(player->getId(), "ENDTU1");
+                cout << "End of turn player " << to_string(playerIndex) << endl;
                 isPlaying = false;
             }
             else
@@ -99,6 +103,7 @@ void Game::turnPlayer(int playerIndex)
             }
         }
         string move = player->readMessage();
+        cout << "Player move : " << move << endl;
         if(getMessagePrefix(move) == "PLAYT")
         {
 
@@ -195,10 +200,12 @@ void Game::endOfGame(int idPlayer)
 
 string Game::sendMessageToEveryone(string message)
 {
+    cout << message << endl;
     for (int i = 0; i < players.size(); ++i) {
         players.at(i)->sendMessage(message);
         players.at(i)->readMessage();
     }
+    cout << "sent to everyone" << endl;
 }
 
 string Game::sendMessageToOne(int id, string message)

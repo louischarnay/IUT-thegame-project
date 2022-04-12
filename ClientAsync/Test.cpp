@@ -22,38 +22,39 @@ Player* player;
 
 int main(int argc, char* argv[])
 {
-    int port;
-
-    if (argc != 3)
     {
-        printf("usage: %s server_address port\n", argv[0]);
-        return 0;
-    }
+        int port;
 
-    #ifdef _WIN32
-    if (sscanf_s(argv[2], "%d", &port) != 1)
-    #else
-    if (sscanf(argv[2], "%d", &port) != 1)
-    #endif
-    {
-        printf("usage: %s server_address port\n", argv[0]);
-        return 1;
-    }
+        if (argc != 3) {
+            printf("usage: %s server_address port\n", argv[0]);
+            return 0;
+        }
 
-    StreamSocket* socket = new StreamSocket(argv[1], port);
+#ifdef _WIN32
+        if (sscanf_s(argv[2], "%d", &port) != 1)
+#else
+        if (sscanf(argv[2], "%d", &port) != 1)
+#endif
+        {
+            printf("usage: %s server_address port\n", argv[0]);
+            return 1;
+        }
 
-    int err = socket->connect();
-    if (err != 0) {
-        delete socket;
-        perror("[-]Error in connection: ");
-        return(err);
+        StreamSocket *socket = new StreamSocket(argv[1], port);
+
+        int err = socket->connect();
+        if (err != 0) {
+            delete socket;
+            perror("[-]Error in connection: ");
+            return (err);
+        }
+        cout << "[+]Connected to Server.\n";
     }
-    cout << "[+]Connected to Server.\n";
 
     player = new Player(0, socket);
 
     string message;
-    socket->read(message);
+    message = player->readMessage();
     connexion(message);
 
     fillDeck();
@@ -68,6 +69,7 @@ int main(int argc, char* argv[])
 
 void connexion(string message)
 {
+    cout << getMessagePrefix(message) << " zebi" << endl;
     if(getMessagePrefix(message) == "START")
     {
         player->setId(getMessageSuffix(message));
@@ -89,6 +91,7 @@ string getMessagePrefix(string message)
 int getMessageSuffix(string message)
 {
     message = message.substr(5, message.length() - 5);
+    cout << message << endl;
     return stoi(message);
 }
 
@@ -99,7 +102,7 @@ void fillDeck()
     {
         message = player->readMessage();
         string tmp = message.substr(6, message.length() - 5);
-        int card = stoi(tmp);
+        int card = getMessageSuffix(message);
         player->dealCard(card);
         player->sendMessage("DISTR1");
     }
@@ -108,28 +111,28 @@ void fillDeck()
 void turn(StreamSocket socket)
 {
     string message;
-    socket.read(message);
+    message = player->readMessage();
+    player->sendMessage("TURN1");
     if(isYourTurn(message))
     {
         int card = -1;
         int stack = 0;
-        while(player->isMoveValid(card, stack))
+        while(!player->isMoveValid(card, stack))
         {
             cout << "card : ";
             cin >> card;
             cout << endl << "stack : ";
             cin >> stack;
         }
-        socket.send("PLAYC" + to_string(card));
+        player->sendMessage("PLAYT" + to_string(stack) + to_string(card));
         socket.read(message);
-        socket.send("PLAYS" + to_string(stack));
-        socket.read(message);
+        cout << message << endl;
     }
 }
 
 bool isYourTurn(string message)
 {
-    if(getMessageSuffix(message) == to_string(player->getId()))
+    if(getMessageSuffix(message) == player->getId())
         return true;
     return false;
 }
