@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
     //Le joueur reçoit les cartes
     fillDeck(player);
 
-    string stack = "[" + to_string(player.getStacks(0)->getTopCard()) + "]- [" + to_string(player.getStacks(1)->getTopCard()) + "]+ [" + to_string(player.getStacks(2)->getTopCard()) + "]- [" + to_string(player.getStacks(3)->getTopCard()) + "]+";
+    string stack = "[" + to_string(player.getStack(0)->getTopCard()) + "]- [" + to_string(player.getStack(1)->getTopCard()) + "]+ [" + to_string(player.getStack(2)->getTopCard()) + "]- [" + to_string(player.getStack(3)->getTopCard()) + "]+";
     char stacks[300] = "";
     strcpy(stacks, stack.c_str());
 

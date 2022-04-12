@@ -28,14 +28,13 @@ public:
     void setDeck(vector<int> deck){this->deck = deck;}
     void setPlayers(vector<Player*> players){this->players = players;}
 
-    bool canPlaceCard(int, int);
     void setGameState(int state) { gameState = state; }
     void setMinCardsToPlace(int minCards) { minCardsToPlace = minCards; }
     int dealRandomCard();
     void turnPlayer(int);
     void init(vector<Player*>&);
     void endOfGame(int);
-    string sendMessageToEveryone(string);
+    void sendMessageToEveryone(string);
     string sendMessageToOne(int, string);
     string getMessagePrefix(string);
     int getMessageSuffix(string);

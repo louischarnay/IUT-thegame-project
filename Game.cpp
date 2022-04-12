@@ -49,117 +49,63 @@ void Game::init(vector<Player*>& Players){
         turnPlayer(cpt % players.size());
     }
     endOfGame(cpt % players.size());
-
 }
 
-void Game::turnPlayer(int playerIndex)
-{
-    Player* player = players.at(playerIndex);
-    sendMessageToEveryone("TURNP" + to_string(playerIndex));
-    cout << "test wesh";
-    //cout << "Turn Player " << to_string(playerIndex) << endl;
+void Game::turnPlayer(int playerIndex) {
+    Player *player = players.at(playerIndex);
+    sendMessageToEveryone("TURNP" + to_string(player->getId()));
+    cout << "Turn Player " << to_string(player->getId()) << endl;
 
-    //bool isMoveValid = false;
-    bool isPlaying = true;
     int cardValue;
     int stackIndex;
     int nbCardsPlayed = 0;
+    string message = "";
 
-    cout << "zebi";
-    player->startTurn(stacksList);
-    while(isPlaying)
-    {
-        //get player's move
-
-        //player->setCardAndStackTEST(); //TEST
-        //player->isEndOfTurnTEST(); //TEST
-
-        if(!player->getCanPlay())
-        {
-            //end of turn
-            if(nbCardsPlayed >= minCardsToPlace)
-            {
-                isPlaying = false;
-            }
-            //end of game
-            else
-            {
-                gameState = 1;
-                return;
-            }
+    //player->startTurn(stacksList);
+    while (true) {
+        //check if player can play
+        player->setCanPlay();
+        if (!player->getCanPlay()) {
+            if (nbCardsPlayed < minCardsToPlace)
+                cout << "niqué" << endl;
+                gameState = 1; // end of game
+            return;
         }
-        //if player skip
-        if(!player->getIsTurn())
-        {
-            if(nbCardsPlayed >= minCardsToPlace)
+
+        //get player's move
+        player->sendMessage("PLAYT1");
+        message = player->readMessage();
+        if (getMessagePrefix(message) == "PLAYT") {
+            int tmp = getMessageSuffix(message);
+            cardValue = tmp % 100;
+            stackIndex = tmp / 100;
+
+            //place card
+            if(cardValue > 9)
             {
-                sendMessageToOne(player->getId(), "ENDTU1");
-                cout << "End of turn player " << to_string(playerIndex) << endl;
-                isPlaying = false;
+                sendMessageToEveryone("POSTT" + to_string(stackIndex) + to_string(cardValue));
+            } else
+            {
+                sendMessageToEveryone("POSTT" + to_string(stackIndex) + "0" + to_string(cardValue));
             }
-            else
-            {
+            stacksList[stackIndex]->setTopCard(cardValue);
+            player->placeCard(cardValue, stackIndex);
+            nbCardsPlayed++;
+            cout << "Card placed" << endl;
+
+        } else if (getMessagePrefix(message) == "ENDTU") {
+            if (nbCardsPlayed >= minCardsToPlace) {
+                sendMessageToOne(playerIndex, "ENDTU1");
+                cout << "End of turn player " << to_string(player->getId()) << endl;
+                //deals cards
+                for (int i = 0; i < nbCardsPlayed; ++i) {
+                    player->dealCard(dealRandomCard());
+                }
+            } else {
                 sendMessageToOne(player->getId(), "ENDTU0");
             }
         }
-        string move = player->readMessage();
-        cout << "Player move : " << move << endl;
-        if(getMessagePrefix(move) == "PLAYT")
-        {
-
-        }
-        else if(getMessagePrefix(move) == "ENDTU")
-        {
-
-        }
-        while(player->getCardToPlace() == -1 && player->getStackToPlace() == -1) // wait player's turn
-        {
-            isPlaying = player->getIsTurn();
-        }
-        cardValue = player->getCardToPlace();
-        stackIndex = player->getStackToPlace();
-
-        if(cardValue != -1 && stackIndex != -1)
-        {
-            //cout << "want to play card : " << to_string(cardValue) << " on stack : " << to_string(stackIndex) << endl;
-            if(canPlaceCard(cardValue, stackIndex))
-            {
-                sendMessageToOne(player->getId(), "PLAYT1");
-                sendMessageToEveryone("POSTT" + to_string(stackIndex) + to_string(cardValue));
-                //cout << "card placed\n";
-                stacksList[stackIndex]->setTopCard(cardValue);
-                //cout << this->toString();
-                player->resetChoice(true);
-                nbCardsPlayed++;
-            } else
-            {
-                sendMessageToOne(player->getId(), "PLAYT0");
-                cout << "card not placed\n";
-                player->resetChoice(false);
-            }
-        }
     }
-    //cout << "end of turn player : " << player->getId() << endl;
-    for (int i = 0; i < nbCardsPlayed; ++i)
-    {
-        player->dealCard(dealRandomCard());
-    }
-    //cout << "server : " << endl <<this->toString();
-}
-
-bool Game::canPlaceCard(int card, int stack)
-{
-    //crescent stack && value >, decrescent stack && value <, crescent stack && value < 10, decrescent stack && value > 10
-    if(
-            (stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() < card) ||
-            (!stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() > card) ||
-            (!stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() == card + 10) ||
-            (stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() == card - 10)
-            )
-    {
-        return true;
-    }
-    return false;
 }
 
 int Game::dealRandomCard(){
@@ -198,14 +144,12 @@ void Game::endOfGame(int idPlayer)
     cout << "End of game ! " << endl << "Points : " << to_string(nbCardsRemaining) << endl;
 }
 
-string Game::sendMessageToEveryone(string message)
+void Game::sendMessageToEveryone(string message)
 {
-    cout << message << endl;
     for (int i = 0; i < players.size(); ++i) {
         players.at(i)->sendMessage(message);
         players.at(i)->readMessage();
     }
-    cout << "sent to everyone" << endl;
 }
 
 string Game::sendMessageToOne(int id, string message)
@@ -227,7 +171,9 @@ string Game::getMessagePrefix(string message)
 
 int Game::getMessageSuffix(string message)
 {
-    return message.at(5) + '0';
+    message = message.substr(5, message.length() - 5);
+    cout << message << endl;
+    return stoi(message);
 }
 
 Game::~Game(){

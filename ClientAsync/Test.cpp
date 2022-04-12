@@ -16,6 +16,7 @@ void fillDeck();
 void connexion(string);
 void turn();
 bool isYourTurn(string);
+string toString();
 
 int DECK_SIZE = 6;
 Player* player;
@@ -63,6 +64,14 @@ int main(int argc, char* argv[])
     cout << endl;
 
     turn();
+
+    while(true)
+    {
+        cout << player->readMessage();
+        string tmp;
+        cin >> tmp;
+        player->sendMessage(tmp);
+    }
 }
 
 void connexion(string message)
@@ -113,18 +122,62 @@ void turn()
     player->sendMessage("TURN1");
     if(isYourTurn(message))
     {
-        int card = -1;
-        int stack = 0;
-        while(!player->isMoveValid(card, stack))
+        while(true)
         {
-            cout << "card : ";
-            cin >> card;
-            cout << endl << "stack : ";
-            cin >> stack;
+            message = player->readMessage();
+            cout << "message : " << message << endl;
+            if(getMessagePrefix(message).compare("PLAYT") == 0)
+            {
+                int card = -1;
+                int stack = -1;
+                int var = 1;
+                while(!player->isMoveValid(card, stack))
+                {
+                    cout << toString();
+                    cout << "card : ";
+                    cin >> card;
+                    cout << endl << "stack : ";
+                    cin >> stack;
+                    stack --;
+
+                    //end of turn
+                    if(card == -2)
+                    {
+                        player->sendMessage("ENDTU");
+                        message = player->readMessage();
+                        if(getMessageSuffix(message) == 1)
+                        {
+                            cout << "End of turn" << endl;
+                            return;
+                            //end of turn
+                        } else
+                        {
+                            cout << "Can't end your turn" << endl;
+                        }
+                    }
+                }
+
+                //send card + stack
+                if(card > 9)
+                {
+                    player->sendMessage("PLAYT" + to_string(stack) + to_string(card));
+                } else
+                {
+                    player->sendMessage("PLAYT" + to_string(stack) + "0" + to_string(card));
+                }
+                message = player->readMessage();
+                if(getMessagePrefix(message).compare("POSTT") == 0)
+                {
+                    player->placeCard(card, stack);
+                    player->sendMessage("POSTT1");
+                }
+            } else if(getMessagePrefix(message).compare("ENDGA") == 0)
+            {
+                cout << "End of game" << endl;
+                return;
+            }
+
         }
-        player->sendMessage("PLAYT" + to_string(stack) + to_string(card));
-        message = player->readMessage();
-        cout << message << endl;
     }
 }
 
@@ -133,4 +186,22 @@ bool isYourTurn(string message)
     if(getMessageSuffix(message) == player->getId())
         return true;
     return false;
+}
+
+string toString()
+{
+    string result = "";
+    result += "Stacks : \n";
+    for (int i = 0; i < 4; ++i) {
+        result += "stack id : " + to_string(i + 1)
+                + " is crescent : " + to_string(player->getStack(i)->getIsCrescent())
+                + " top card : " + to_string(player->getStack(i)->getTopCard())
+                + "\n";
+    }
+    result += "Deck : \n";
+    for (int i = 0; i < player->getDeckSize(); ++i) {
+        result += to_string(player->getDeck().at(i)) + "\t";
+    }
+    result += "\n";
+    return result;
 }

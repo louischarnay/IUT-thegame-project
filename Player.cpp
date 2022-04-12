@@ -53,59 +53,18 @@ void Player::startTurn(Stack *stackList[4])
     }
 }
 
-void Player::resetChoice(bool isValid)
+void Player::placeCard(int cardValue, int stackIndex)
 {
-    if(isValid)
-    {
-        stacksList[stackToPLace]->setTopCard(cardToPlace);
-        deck.erase(deck.begin() + getIndex(deck, cardToPlace));
-    }
-    cardToPlace = -1;
-    stackToPLace = -1;
-}
-
-void Player::setCardAndStackTEST()
-{
-    if(deck.size() == 0)
-    {
-        setCanPlay(false);
-        stackToPLace = -1;
-        cardToPlace = -1;
-    }
-    int stack = rand() % 4;
-    for (int i = 0; i < 4; ++i) {
-        if(stacksList[stack]->getIsCrescent()){
-            for (int j = 0; j < deck.size(); ++j) {
-                if(isMoveValid(deck.at(j), stack)) {
-                    stackToPLace = stack;
-                    cardToPlace = deck.at(j);
-                    setCanPlay(true)    ;
-                    return;
-                }
-            }
-        } else {
-            for (int j = deck.size() - 1; j > -1; j--) {
-                if(isMoveValid(deck.at(j), stack)) {
-                    stackToPLace = stack;
-                    cardToPlace = deck.at(j);
-                    setCanPlay(true)    ;
-                    return;
-                }
-            }
-        }
-
-        stack++;
-        stack = stack % 4;
-    }
-    setCanPlay(false);
-    stackToPLace = -1;
-    cardToPlace = -1;
+    stacksList[stackIndex]->setTopCard(cardValue);
+    deck.erase(deck.begin() + getIndex(deck, cardValue));
 }
 
 bool Player::isMoveValid(int card, int stack)
 {
-    if(card == -1 || stack == -1)
+
+    if(card <= -1 || stack <= -1)
         return false;
+
     if(
             (stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() < card) ||
             (!stacksList[stack]->getIsCrescent() && stacksList[stack]->getTopCard() > card) ||
@@ -118,15 +77,16 @@ bool Player::isMoveValid(int card, int stack)
     return false;
 }
 
-bool Player::isEndOfTurnTEST()
+void Player::setCanPlay()
 {
-    isTurn = rand() % 10;
-    return (isTurn >= 1);
-}
+    for (int i = 0; i < deck.size(); ++i)
+    {
+        for (int j = 0; j < 4; ++j) {
+            if(isMoveValid(i, j))
+                canPlay = true;
+        }
+    }
 
-void Player::setCanPlay(bool canPlay)
-{
-    this->canPlay = canPlay;
     //cout << "can play : " << to_string(this->canPlay) << endl;
 }
 
@@ -148,7 +108,7 @@ string Player::readMessage()
     {
         socket->read(result);
     }
-    cout << "Player " << to_string(getId()) << " : " << result << endl;
+    cout << "Receive Player " << to_string(getId()) << " : " << result << endl;
     result = result.substr(1, result.length() -  1);
     return result;
 }

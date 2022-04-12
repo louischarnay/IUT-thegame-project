@@ -18,17 +18,13 @@ private:
     Stack *stacksList[4];
     bool isTurn;
     bool canPlay;
-    int cardToPlace;
-    int stackToPLace;
 public:
     Player(int, StreamSocket*);
     ~Player();
 
     string getCards();
     string getCards(int index);
-    int getCardToPlace(){return cardToPlace;}
-    Stack* getStacks(int index){return stacksList[index];}
-    int getStackToPlace(){return stackToPLace;}
+    Stack* getStack(int index){return stacksList[index];}
     bool getIsTurn(){return isTurn;}
     int getId(){return id;}
     bool getCanPlay(){return canPlay;}
@@ -36,18 +32,15 @@ public:
     int getDeckSize(){return deck.size();}
     vector<int> getDeck(){return deck;}
 
-    void setCanPlay(bool);
+    void setCanPlay();
     void setId(int Id){id = Id;}
 
     void dealCard(int card);
     void startTurn(Stack*[4]);
-    void resetChoice(bool isValid);
+    void placeCard(int, int);
     bool isMoveValid(int, int);
-    void sendMessage(string message){socket->send(message); cout << message << endl;}
+    void sendMessage(string message){socket->send(message); cout << "send : " << message << endl;}
     string readMessage();
-
-    void setCardAndStackTEST();
-    bool isEndOfTurnTEST();
 };
 
 
