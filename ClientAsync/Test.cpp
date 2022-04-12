@@ -14,7 +14,7 @@ string getMessagePrefix(string);
 int getMessageSuffix(string);
 void fillDeck();
 void connexion(string);
-void turn();
+bool turn();
 bool isYourTurn(string);
 string toString();
 void yourTurn();
@@ -64,9 +64,10 @@ int main(int argc, char* argv[])
         cout << player->getDeck().at(i) << "\t";
     }
     cout << endl;
-    while(true)
+    bool isGameEnd = false;
+    while(!isGameEnd)
     {
-        turn();
+        isGameEnd = turn();
     }
 }
 
@@ -109,7 +110,7 @@ void fillDeck()
     }
 }
 
-void turn()
+bool turn()
 {
     string message;
     message = player->readMessage();
@@ -118,17 +119,23 @@ void turn()
         player->sendMessage("TURNP1");
         if(isYourTurn(message)) {
             yourTurn();
+        } else
+        {
+            cout << "Turn player " << to_string(getMessageSuffix(message)) << endl;
         }
     } else if(getMessagePrefix(message).compare("POSTT") == 0)
     {
         int tmp = getMessageSuffix(message);
-        player->placeCard(tmp % 100, tmp / 100);
+        player->placeCard(tmp % 100, tmp / 100, false);
         player->sendMessage("POSTT1");
 
     } else if(getMessagePrefix(message).compare("ENDGA") == 0)
     {
-
+        player->sendMessage("ENDGA1");
+        cout << "End of game !\n Total score : " << to_string(getMessageSuffix(message)) << endl;
+        return true;
     }
+    return false;
 }
 
 bool isYourTurn(string message)
@@ -212,7 +219,7 @@ void yourTurn()
             message = player->readMessage();
             if(getMessagePrefix(message).compare("POSTT") == 0)
             {
-                player->placeCard(card, stack);
+                player->placeCard(card, stack, true);
                 player->sendMessage("POSTT1");
             }
         } else if(getMessagePrefix(message).compare("ENDGA") == 0)

@@ -62,7 +62,7 @@ void Game::turnPlayer(int playerIndex) {
     int nbCardsPlayed = 0;
     string message = "";
 
-    //player->startTurn(stacksList);
+    player->startTurn(stacksList);
     while (true) {
         //check if player can play
         player->setCanPlay();
@@ -72,6 +72,7 @@ void Game::turnPlayer(int playerIndex) {
                 cout << "niqué fin de game" << endl;
                 gameState = 1; // end of game
             }
+            cout << "Can't play" << endl;
             return;
         }
 
@@ -92,7 +93,7 @@ void Game::turnPlayer(int playerIndex) {
                 sendMessageToEveryone("POSTT" + to_string(stackIndex) + "0" + to_string(cardValue));
             }
             stacksList[stackIndex]->setTopCard(cardValue);
-            player->placeCard(cardValue, stackIndex);
+            player->placeCard(cardValue, stackIndex, true);
             nbCardsPlayed++;
             cout << "Card placed" << endl;
         } else if (getMessagePrefix(message) == "ENDTU") {
@@ -166,7 +167,7 @@ string Game::getMessagePrefix(string message)
 int Game::getMessageSuffix(string message)
 {
     message = message.substr(5, message.length() - 5);
-    cout << message << endl;
+    //cout << message << endl;
     return stoi(message);
 }
 

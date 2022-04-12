@@ -53,10 +53,11 @@ void Player::startTurn(Stack *stackList[4])
     }
 }
 
-void Player::placeCard(int cardValue, int stackIndex)
+void Player::placeCard(int cardValue, int stackIndex, bool doErase)
 {
     stacksList[stackIndex]->setTopCard(cardValue);
-    deck.erase(deck.begin() + getIndex(deck, cardValue));
+    if(doErase)
+        deck.erase(deck.begin() + getIndex(deck, cardValue));
 }
 
 bool Player::isMoveValid(int card, int stack)
@@ -85,6 +86,7 @@ void Player::setCanPlay()
             if(isMoveValid(deck.at(i), j))
             {
                 canPlay = true;
+                //cout << "can play :  oui card " << to_string(deck.at(i)) << "stack : " << to_string(j) << endl;
                 return;
             }
         }
@@ -111,7 +113,7 @@ string Player::readMessage()
     {
         socket->read(result);
     }
-    cout << "Receive Player " << to_string(getId()) << " : " << result << endl;
+    //cout << "Receive Player " << to_string(getId()) << " : " << result << endl;
     result = result.substr(1, result.length() -  1);
     return result;
 }
