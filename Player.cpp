@@ -82,11 +82,14 @@ void Player::setCanPlay()
     for (int i = 0; i < deck.size(); ++i)
     {
         for (int j = 0; j < 4; ++j) {
-            if(isMoveValid(i, j))
+            if(isMoveValid(deck.at(i), j))
+            {
                 canPlay = true;
+                return;
+            }
         }
     }
-
+    canPlay = false;
     //cout << "can play : " << to_string(this->canPlay) << endl;
 }
 

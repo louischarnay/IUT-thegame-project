@@ -39,7 +39,7 @@ public:
     void startTurn(Stack*[4]);
     void placeCard(int, int);
     bool isMoveValid(int, int);
-    void sendMessage(string message){socket->send(message); cout << "send : " << message << endl;}
+    void sendMessage(string message){socket->send(message); cout << to_string(getId()) << " send : " << message << endl;}
     string readMessage();
 };
 

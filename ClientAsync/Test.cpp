@@ -17,6 +17,8 @@ void connexion(string);
 void turn();
 bool isYourTurn(string);
 string toString();
+void yourTurn();
+void otherTurn();
 
 int DECK_SIZE = 6;
 Player* player;
@@ -62,15 +64,9 @@ int main(int argc, char* argv[])
         cout << player->getDeck().at(i) << "\t";
     }
     cout << endl;
-
-    turn();
-
     while(true)
     {
-        cout << player->readMessage();
-        string tmp;
-        cin >> tmp;
-        player->sendMessage(tmp);
+        turn();
     }
 }
 
@@ -97,9 +93,7 @@ string getMessagePrefix(string message)
 
 int getMessageSuffix(string message)
 {
-    message = message.substr(5, message.length() - 5);
-    cout << message << endl;
-    return stoi(message);
+    return stoi(message.substr(5, message.length() - 5));
 }
 
 void fillDeck()
@@ -107,8 +101,8 @@ void fillDeck()
     string message;
     while(player->getDeckSize() < DECK_SIZE)
     {
+        cout << "deck size : " << to_string(player->getDeckSize()) << endl;
         message = player->readMessage();
-        string tmp = message.substr(6, message.length() - 5);
         int card = getMessageSuffix(message);
         player->dealCard(card);
         player->sendMessage("DISTR1");
@@ -119,65 +113,21 @@ void turn()
 {
     string message;
     message = player->readMessage();
-    player->sendMessage("TURN1");
-    if(isYourTurn(message))
+    if(getMessagePrefix(message).compare("TURNP") == 0)
     {
-        while(true)
-        {
-            message = player->readMessage();
-            cout << "message : " << message << endl;
-            if(getMessagePrefix(message).compare("PLAYT") == 0)
-            {
-                int card = -1;
-                int stack = -1;
-                int var = 1;
-                while(!player->isMoveValid(card, stack))
-                {
-                    cout << toString();
-                    cout << "card : ";
-                    cin >> card;
-                    cout << endl << "stack : ";
-                    cin >> stack;
-                    stack --;
-
-                    //end of turn
-                    if(card == -2)
-                    {
-                        player->sendMessage("ENDTU");
-                        message = player->readMessage();
-                        if(getMessageSuffix(message) == 1)
-                        {
-                            cout << "End of turn" << endl;
-                            return;
-                            //end of turn
-                        } else
-                        {
-                            cout << "Can't end your turn" << endl;
-                        }
-                    }
-                }
-
-                //send card + stack
-                if(card > 9)
-                {
-                    player->sendMessage("PLAYT" + to_string(stack) + to_string(card));
-                } else
-                {
-                    player->sendMessage("PLAYT" + to_string(stack) + "0" + to_string(card));
-                }
-                message = player->readMessage();
-                if(getMessagePrefix(message).compare("POSTT") == 0)
-                {
-                    player->placeCard(card, stack);
-                    player->sendMessage("POSTT1");
-                }
-            } else if(getMessagePrefix(message).compare("ENDGA") == 0)
-            {
-                cout << "End of game" << endl;
-                return;
-            }
-
+        player->sendMessage("TURNP1");
+        if(isYourTurn(message)) {
+            yourTurn();
         }
+    } else if(getMessagePrefix(message).compare("POSTT") == 0)
+    {
+        int tmp = getMessageSuffix(message);
+        player->placeCard(tmp % 100, tmp / 100);
+        player->sendMessage("POSTT1");
+
+    } else if(getMessagePrefix(message).compare("ENDGA") == 0)
+    {
+
     }
 }
 
@@ -204,4 +154,83 @@ string toString()
     }
     result += "\n";
     return result;
+}
+
+void yourTurn()
+{
+    string message;
+    while(true)
+    {
+        player->setCanPlay();
+        if(!player->getCanPlay())
+        {
+            cout << "Can't play" << endl;
+            return;
+        }
+        message = player->readMessage();
+        cout << "message : " << message << endl;
+        if(getMessagePrefix(message).compare("PLAYT") == 0)
+        {
+            int card = -1;
+            int stack = -1;
+            while(!player->isMoveValid(card, stack))
+            {
+                cout << toString();
+                cout << "card : ";
+                cin >> card;
+                cout << endl << "stack : ";
+                cin >> stack;
+                stack --;
+
+                //end of turn
+                if(card == -2)
+                {
+                    player->sendMessage("ENDTU");
+                    message = player->readMessage();
+                    if(getMessageSuffix(message) == 1)
+                    {
+                        cout << "End of turn" << endl;
+                        player->sendMessage("ENDTU1");
+                        fillDeck();
+                        return;
+                        //end of turn
+                    } else
+                    {
+                        cout << "Can't end your turn" << endl;
+                    }
+                }
+            }
+
+            //send card + stack
+            if(card > 9)
+            {
+                player->sendMessage("PLAYT" + to_string(stack) + to_string(card));
+            } else
+            {
+                player->sendMessage("PLAYT" + to_string(stack) + "0" + to_string(card));
+            }
+            message = player->readMessage();
+            if(getMessagePrefix(message).compare("POSTT") == 0)
+            {
+                player->placeCard(card, stack);
+                player->sendMessage("POSTT1");
+            }
+        } else if(getMessagePrefix(message).compare("ENDGA") == 0)
+        {
+            cout << "End of game" << endl;
+            return;
+        }
+
+    }
+}
+
+void otherTurn()
+{
+    while (true)
+    {
+        string message;
+        message = player->readMessage();
+        cout << message;
+        player->sendMessage("zebi");
+    }
 }

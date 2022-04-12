@@ -35,7 +35,6 @@ public:
     void init(vector<Player*>&);
     void endOfGame(int);
     void sendMessageToEveryone(string);
-    string sendMessageToOne(int, string);
     string getMessagePrefix(string);
     int getMessageSuffix(string);
     string toString();

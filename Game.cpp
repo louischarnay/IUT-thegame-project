@@ -9,6 +9,7 @@ using namespace std;
 
 Game::Game(vector<Player*>& players)
 {
+    srand(time(0));
     init(players);
 }
 
@@ -67,8 +68,10 @@ void Game::turnPlayer(int playerIndex) {
         player->setCanPlay();
         if (!player->getCanPlay()) {
             if (nbCardsPlayed < minCardsToPlace)
-                cout << "niqué" << endl;
+            {
+                cout << "niqué fin de game" << endl;
                 gameState = 1; // end of game
+            }
             return;
         }
 
@@ -92,17 +95,21 @@ void Game::turnPlayer(int playerIndex) {
             player->placeCard(cardValue, stackIndex);
             nbCardsPlayed++;
             cout << "Card placed" << endl;
-
         } else if (getMessagePrefix(message) == "ENDTU") {
             if (nbCardsPlayed >= minCardsToPlace) {
-                sendMessageToOne(playerIndex, "ENDTU1");
-                cout << "End of turn player " << to_string(player->getId()) << endl;
+                player->sendMessage("ENDTU1");
+                player->readMessage();
+                cout << "End of turn player " << to_string(player->getId()) << endl << "nb cards played : " << to_string(nbCardsPlayed) << endl;
                 //deals cards
                 for (int i = 0; i < nbCardsPlayed; ++i) {
-                    player->dealCard(dealRandomCard());
+                    int card = dealRandomCard();
+                    players.at(playerIndex)->dealCard(card);
+                    players.at(playerIndex)->sendMessage("DISTR" + to_string(card));
+                    players.at(playerIndex)->readMessage();
                 }
+                return;
             } else {
-                sendMessageToOne(player->getId(), "ENDTU0");
+                player->sendMessage("ENDTU0");
             }
         }
     }
@@ -114,7 +121,6 @@ int Game::dealRandomCard(){
         minCardsToPlace = 1;
         return -1;
     }
-    srand(time(0));
     int index = rand() % deck.size();
     int result = deck.at(index);
     deck.erase(deck.begin() + index);
@@ -139,7 +145,7 @@ void Game::endOfGame(int idPlayer)
     for (int i = 0; i < players.size(); ++i) {
         nbCardsRemaining += players.at(i)->getDeckSize();
     }
-    sendMessageToEveryone("ENDGA " + to_string(idPlayer) + " " + to_string(nbCardsRemaining));
+    sendMessageToEveryone("ENDGA " + to_string(nbCardsRemaining));
     ///ENDGA idPlayer nbCardsRemaining
     cout << "End of game ! " << endl << "Points : " << to_string(nbCardsRemaining) << endl;
 }
@@ -150,18 +156,6 @@ void Game::sendMessageToEveryone(string message)
         players.at(i)->sendMessage(message);
         players.at(i)->readMessage();
     }
-}
-
-string Game::sendMessageToOne(int id, string message)
-{
-    players.at(id)->sendMessage(message);
-    string response = "";
-    while(response == "")
-    {
-        response = players.at(id)->readMessage();
-        cout << response << endl;
-    }
-    return response;
 }
 
 string Game::getMessagePrefix(string message)
