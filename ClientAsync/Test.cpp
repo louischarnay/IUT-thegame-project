@@ -14,7 +14,7 @@ string getMessagePrefix(string);
 int getMessageSuffix(string);
 void fillDeck();
 void connexion(string);
-void turn(StreamSocket);
+void turn();
 bool isYourTurn(string);
 
 int DECK_SIZE = 6;
@@ -22,34 +22,32 @@ Player* player;
 
 int main(int argc, char* argv[])
 {
-    {
-        int port;
+    int port;
 
-        if (argc != 3) {
-            printf("usage: %s server_address port\n", argv[0]);
-            return 0;
-        }
+    if (argc != 3) {
+        printf("usage: %s server_address port\n", argv[0]);
+        return 0;
+    }
 
 #ifdef _WIN32
-        if (sscanf_s(argv[2], "%d", &port) != 1)
+    if (sscanf_s(argv[2], "%d", &port) != 1)
 #else
-        if (sscanf(argv[2], "%d", &port) != 1)
+    if (sscanf(argv[2], "%d", &port) != 1)
 #endif
-        {
-            printf("usage: %s server_address port\n", argv[0]);
-            return 1;
-        }
-
-        StreamSocket *socket = new StreamSocket(argv[1], port);
-
-        int err = socket->connect();
-        if (err != 0) {
-            delete socket;
-            perror("[-]Error in connection: ");
-            return (err);
-        }
-        cout << "[+]Connected to Server.\n";
+    {
+        printf("usage: %s server_address port\n", argv[0]);
+        return 1;
     }
+
+    StreamSocket *socket = new StreamSocket(argv[1], port);
+
+    int err = socket->connect();
+    if (err != 0) {
+        delete socket;
+        perror("[-]Error in connection: ");
+        return (err);
+    }
+    cout << "[+]Connected to Server.\n";
 
     player = new Player(0, socket);
 
@@ -64,7 +62,7 @@ int main(int argc, char* argv[])
     }
     cout << endl;
 
-    turn(*socket);
+    turn();
 }
 
 void connexion(string message)
@@ -108,7 +106,7 @@ void fillDeck()
     }
 }
 
-void turn(StreamSocket socket)
+void turn()
 {
     string message;
     message = player->readMessage();
@@ -125,7 +123,7 @@ void turn(StreamSocket socket)
             cin >> stack;
         }
         player->sendMessage("PLAYT" + to_string(stack) + to_string(card));
-        socket.read(message);
+        message = player->readMessage();
         cout << message << endl;
     }
 }
