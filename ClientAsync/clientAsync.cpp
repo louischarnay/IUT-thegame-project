@@ -13,10 +13,34 @@ using namespace std;
 using namespace stdsock;
 
 string getMessagePrefix(string);
-int getMessageSuffix(string, int);
-void fillDeck(Player);
+int getMessageSuffix(string);
+void fillDeck();
+void connexion(string);
+bool turn();
+bool isYourTurn(string);
+string toString();
+void yourTurn();
+void otherTurn();
+void coutStacks();
 
 int DECK_SIZE = 6;
+
+Player *player;
+char cards[300] = "Vos cartes sont: ";
+char mesg1[] = "Choisissez une stack: ";
+char mesg12[] = "Merci de jouer une stack valide !";
+char mesg2[] = "Choisissez une carte: ";
+char mesg22[] = "Merci de jouer une carte valide !";
+char mesg3[] = "Carte jouée !";
+char mesg4[] = "Impossible de jouer cette carte sur cette stack !";
+char mesg5[] = "Veuillez patienter, ce n'est pas votre tour.";
+char mesg6[] = "Vous pouvez envoyer un message aux autres participants.";
+char mesg7[] = "Impossible de jouer.";
+char mesg8[50] = "Tour du joueur ";
+char str1[2];
+char str2[2];
+char str3[250];
+int cpt = 0;
 
 int main(int argc, char* argv[])
 {
@@ -26,12 +50,6 @@ int main(int argc, char* argv[])
     char str4[2];
     char str5[2];
     char str6[2];
-    int cpt = 0;
-    char lobby_mesg1[] = "Créer une partie (c)";
-    char lobby_mesg2[] = "Rejoindre une partie (j)";
-    char lobby_mesg3[] = "Indiquez la lettre correspondante à l'action c/j: ";
-    char lobby_mesg4[] = "Indiquez le nombre max de participants: ";
-    char lobby_mesg5[] = "Indiquez l\'identifiant du salon que vous souhaitez rejoindre: ";
 
 
     int port;
@@ -62,91 +80,47 @@ int main(int argc, char* argv[])
     }
     cout << "[+]Connected to Server.\n";
 
-    Player player(0, socket);
+    player = new Player(0, socket);
 
     bool lobby = true;
 
     initscr();
-    while (lobby){
-        clear();
-        cpt = 0;
-        mvprintw(0, (COLS / 2) - (strlen(title) / 2), title);
-        mvprintw(LINES / 4 + cpt, (strlen(lobby_mesg1) / 2) - (strlen(lobby_mesg1) / 2), lobby_mesg1);
-        cpt++;
-        mvprintw(LINES / 4 + cpt, (strlen(lobby_mesg2) / 2) - (strlen(lobby_mesg2) / 2), lobby_mesg2);
-        cpt++;
-        mvprintw(LINES / 4 + cpt, (strlen(lobby_mesg3) / 2) - (strlen(lobby_mesg3) / 2), lobby_mesg3);
-        cpt++;
-        getstr(str4);
-        if (strcmp(str4, "c") == 0){
-            mvprintw(LINES / 4 + cpt, (strlen(lobby_mesg4) / 2) - (strlen(lobby_mesg4) / 2), lobby_mesg4);
-            cpt++;
-            getstr(str5);
-            lobby = false;
-            //crée la room avec str5 participants max
-        }
-        else if (strcmp(str4, "j") == 0){
-            //affichage des rooms
-            mvprintw(LINES / 4 + cpt, (strlen(lobby_mesg5) / 2) - (strlen(lobby_mesg5) / 2), lobby_mesg5);
-            cpt++;
-            getstr(str6);
-            lobby = false;
-            //rejoint la room str6
-        }
-    }
 
     char *loading = "Loading...";
 
     //Attente participants
-    
-    while(1) {
-        clear();
-        mvprintw(0, (COLS / 2) - (strlen(title) / 2), title);
-        mvprintw(LINES / 2 - 2, (COLS / 2) - (strlen(loading) / 2), loading);
-        refresh();
-        if(getch() != 410)
-            break;
-    }
+
+    clear();
+    mvprintw(0, (COLS / 2) - (strlen(title) / 2), title);
+    mvprintw(LINES / 2 - 2, (COLS / 2) - (strlen(loading) / 2), loading);
+    refresh();
     string message;
-    socket->read(message);
-    if(getMessagePrefix(message) == "START")
-        player.setId(getMessageSuffix(message, 5));
+    message = player->readMessage();
+    connexion(message);
+    clear();
 
     //Le joueur reçoit les cartes
-    fillDeck(player);
+    fillDeck();
 
-    string stack = "[" + to_string(player.getStack(0)->getTopCard()) + "]- [" + to_string(player.getStack(1)->getTopCard()) + "]+ [" + to_string(player.getStack(2)->getTopCard()) + "]- [" + to_string(player.getStack(3)->getTopCard()) + "]+";
-    char stacks[300] = "";
-    strcpy(stacks, stack.c_str());
 
-    char cards[300] = "Vos cartes sont: ";
-    char mesg1[] = "Choisissez une stack: ";
-    char mesg12[] = "Merci de jouer une stack valide !";
-    char mesg2[] = "Choisissez une carte: ";
-    char mesg22[] = "Merci de jouer une carte valide !";
-    char mesg3[] = "Carte jouée !";
-    char mesg4[] = "Impossible de jouer cette carte sur cette stack !";
-    char mesg5[] = "Veuillez patienter, ce n'est pas votre tour.";
-    char mesg6[] = "Vous pouvez envoyer un message aux autres participants.";
-    char str1[2];
-    char str2[2];
-    char str3[250];
 
-    strcat(cards, player.getCards().c_str());
+    strcat(cards, player->getCards().c_str());
 
     bool game = true;
-    bool turn = true;
+    bool turnP = true;
     bool card = true;
 
+
+    bool isGameEnd = false;
+    while(!isGameEnd)
+    {
+        isGameEnd = turn();
+    }
     while(game){
         clear();
         cpt = 0;
         mvprintw(0, (COLS / 2) - (strlen(title) / 2), title);
-        mvprintw(LINES / 4 + cpt, (strlen(stacks) / 2) - (strlen(stacks) / 2), stacks);
-        cpt++;
-        mvprintw(LINES / 4 + cpt, (strlen(cards) / 2) - (strlen(cards) / 2), cards);
-        cpt++;
-        while (!turn){
+        while (!turnP){
             mvprintw(LINES / 4 + cpt, (strlen(mesg5) / 2) - (strlen(mesg5) / 2), mesg5);
             cpt++;
             mvprintw(LINES / 4 + cpt, (strlen(mesg6) / 2) - (strlen(mesg6) / 2), mesg6);
@@ -155,7 +129,7 @@ int main(int argc, char* argv[])
             //Le joueur envoie un message contenu dans str3
         }
 
-        while (turn){ //player.getCanPlay()
+        while (turnP){ //player->getCanPlay()
             card = true;
             mvprintw(LINES / 4 + cpt, (strlen(mesg1) / 2) - (strlen(mesg1) / 2), mesg1);
             getstr(str1);
@@ -165,9 +139,9 @@ int main(int argc, char* argv[])
                     mvprintw(LINES / 4 + cpt, (strlen(mesg2) / 2) - (strlen(mesg2) / 2), mesg2);
                     getstr(str2);
                     cpt++;
-                    for (int i = 0; i < player.getDeckSize(); i++){
-                        if (strcmp(str2, player.getCards(i).c_str()) == 0){
-                            if (player.isMoveValid(atoi(str2), atoi(str1) - 1)){
+                    for (int i = 0; i < player->getDeckSize(); i++){
+                        if (strcmp(str2, player->getCards(i).c_str()) == 0){
+                            if (player->isMoveValid(atoi(str2), atoi(str1) - 1)){
                                 message = "PLAYT";
                                 message += str2 + to_string(atoi(str1) - 1);
                                 socket->send(message);
@@ -187,7 +161,7 @@ int main(int argc, char* argv[])
             }
             else if (strcmp(str1, "/") == 0){
                 //Le joueur passe son tour
-                turn = false;
+                turnP = false;
             }
             else {
                 mvprintw(LINES / 4 + cpt, (strlen(mesg12) / 2) - (strlen(mesg12) / 2), mesg12);
@@ -203,24 +177,135 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+void yourTurn()
+{
+    string message;
+    while(true) {
+        player->setCanPlay();
+        if (!player->getCanPlay()) {
+            clear();
+            mvprintw(LINES / 4, (strlen(mesg7) / 2) - (strlen(mesg7) / 2), mesg7);
+            refresh();
+            return;
+        }
+        message = player->readMessage();
+        if(getMessagePrefix(message).compare("PLAYT") == 0) {
+            coutStacks();
+            bool card = true;
+            mvprintw(LINES / 4 + cpt, (strlen(mesg1) / 2) - (strlen(mesg1) / 2), mesg1);
+            getstr(str1);
+            cpt++;
+            if (strcmp(str1, "1") == 0 || strcmp(str1, "2") == 0 || strcmp(str1, "3") == 0 || strcmp(str1, "4") == 0) {
+                while (card) {
+                    mvprintw(LINES / 4 + cpt, (strlen(mesg2) / 2) - (strlen(mesg2) / 2), mesg2);
+                    getstr(str2);
+                    cpt++;
+                    for (int i = 0; i < player->getDeckSize(); i++) {
+                        if (strcmp(str2, player->getCards(i).c_str()) == 0) {
+                            if (player->isMoveValid(atoi(str2), atoi(str1) - 1)) {
+                                message = "PLAYT";
+                                message += str2 + to_string(atoi(str1) - 1);
+                                //socket->send(message);
+                                //le joueur joue la carte str2 sur la stack str1 - 1
+                                card = false;
+                            } else {
+                                mvprintw(LINES / 4 + cpt, (strlen(mesg4) / 2) - (strlen(mesg4) / 2), mesg4);
+                                cpt++;
+                            }
+                        } else if (strcmp(str2, "/") == 0) {
+                            card = false;
+                        }
+                    }
+                }
+            } else if (strcmp(str1, "/") == 0) {
+                //Le joueur passe son tour
+            } else {
+                mvprintw(LINES / 4 + cpt, (strlen(mesg12) / 2) - (strlen(mesg12) / 2), mesg12);
+                cpt++;
+            }
+        }
+    }
+}
+
+bool isYourTurn(string message)
+{
+    if(getMessageSuffix(message) == player->getId())
+        return true;
+    return false;
+}
+
+bool turn()
+{
+    string message;
+    message = player->readMessage();
+    if(getMessagePrefix(message).compare("TURNP") == 0)
+    {
+        player->sendMessage("TURNP1");
+        if(isYourTurn(message)) {
+            yourTurn();
+        } else
+        {
+            cout << "Turn player " << to_string(getMessageSuffix(message)) << endl;
+        }
+    } else if(getMessagePrefix(message).compare("POSTT") == 0)
+    {
+        int tmp = getMessageSuffix(message);
+        player->placeCard(tmp % 100, tmp / 100, false);
+        player->sendMessage("POSTT1");
+
+    } else if(getMessagePrefix(message).compare("ENDGA") == 0)
+    {
+        player->sendMessage("ENDGA1");
+        cout << "End of game !\n Total score : " << to_string(getMessageSuffix(message)) << endl;
+        return true;
+    }
+    return false;
+}
+
 string getMessagePrefix(string message)
 {
     return message.substr(0, 5);
 }
 
-int getMessageSuffix(string message, int index)
+
+int getMessageSuffix(string message)
 {
-    return message.at(index) + '0';
+    return stoi(message.substr(5, message.length() - 5));
 }
 
-void fillDeck(Player player)
+void fillDeck()
 {
     string message;
-    while(player.getDeckSize() < DECK_SIZE)
+    while(player->getDeckSize() < DECK_SIZE)
     {
-        message = player.readMessage();
-        string tmp = message.substr(5, message.length() - 5);
-        int card = stoi(tmp);
-        player.dealCard(card);
+        message = player->readMessage();
+        int card = getMessageSuffix(message);
+        player->dealCard(card);
+        player->sendMessage("DISTR1");
     }
+}
+
+void connexion(string message)
+{
+    if(getMessagePrefix(message) == "START")
+    {
+        player->setId(getMessageSuffix(message));
+        player->sendMessage("START1");
+    }
+    else
+    {
+        player->sendMessage("START0");
+    }
+
+}
+
+void coutStacks()
+{
+    string stack = "[" + to_string(player->getStack(0)->getTopCard()) + "]- [" + to_string(player->getStack(1)->getTopCard()) + "]+ [" + to_string(player->getStack(2)->getTopCard()) + "]- [" + to_string(player->getStack(3)->getTopCard()) + "]+";
+    char stacks[300] = "";
+    strcpy(stacks, stack.c_str());
+    mvprintw(LINES / 4 + cpt, (strlen(stacks) / 2) - (strlen(stacks) / 2), stacks);
+    cpt++;
+    mvprintw(LINES / 4 + cpt, (strlen(cards) / 2) - (strlen(cards) / 2), cards);
+    cpt++;
 }

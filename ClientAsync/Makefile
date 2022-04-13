@@ -52,12 +52,12 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = test.cpp \
+SOURCES       = Test.cpp \
 		../socket.cpp \
 		../talk.cpp \
 		../Player.cpp \
 		../Stack.cpp 
-OBJECTS       = test.o \
+OBJECTS       = Test.o \
 		socket.o \
 		talk.o \
 		Player.o \
@@ -132,7 +132,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		ClientAsync.pro  test.cpp \
+		ClientAsync.pro  Test.cpp \
 		../socket.cpp \
 		../talk.cpp \
 		../Player.cpp \
@@ -333,12 +333,12 @@ compiler_clean:
 
 ####### Compile
 
-test.o: test.cpp ../socket.h \
+Test.o: Test.cpp ../socket.h \
 		../talk.h \
 		../Player.h \
 		../Stack.h \
 		../Game.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o test.o test.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Test.o Test.cpp
 
 socket.o: ../socket.cpp ../socket.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o socket.o ../socket.cpp

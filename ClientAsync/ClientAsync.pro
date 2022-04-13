@@ -9,7 +9,7 @@ LIBS+= $(SUBLIBS) -lpthread -pthread -lncurses
 INCLUDEPATH += ../
 
 SOURCES += \
-        test.cpp \
+        Test.cpp \
         ../socket.cpp \
         ../talk.cpp \
         ../Player.cpp \
